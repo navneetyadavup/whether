@@ -1,0 +1,80 @@
+// ====== CONFIG ======
+// Get your free API key from https://openweathermap.org/ and paste it here:
+const API_KEY = '2df59163ec10870ac6a4ef82d417fb1f';
+// =====================
+
+const searchBtn = document.getElementById('searchBtn');
+const cityInput = document.getElementById('cityInput');
+const result = document.getElementById('result');
+const errorBox = document.getElementById('error');
+
+function setLoading(isLoading){
+  if(isLoading){
+    result.innerHTML = '<div style="display:flex;align-items:center;gap:12px"><div class="spinner" aria-hidden="true"></div><div>Loading...</div></div>';
+    errorBox.hidden = true;
+  }
+}
+
+function showError(msg){
+  errorBox.textContent = msg;
+  errorBox.hidden = false;
+  result.innerHTML = '';
+}
+
+function renderWeather(data){
+  errorBox.hidden = true;
+  const {name, sys, main, weather, wind} = data;
+  const w = weather[0] || {};
+  const iconUrl = w.icon ? `https://openweathermap.org/img/wn/${w.icon}@2x.png` : '';
+
+  result.innerHTML = `
+    <div class="info">
+      <div>
+        <div class="temp">${Math.round(main.temp)}°C</div>
+        <div class="desc">${w.description || ''}</div>
+        <div class="meta">${name}, ${sys.country} • Feels like ${Math.round(main.feels_like)}°C</div>
+      </div>
+      <div style="text-align:center">
+        ${iconUrl ? `<img src="${iconUrl}" alt="${w.description || 'weather icon'}" width="80" height="80">` : ''}
+      </div>
+    </div>
+    <div style="margin-top:12px;font-size:13px;color:#6b7280">
+      Humidity: ${main.humidity}% • Pressure: ${main.pressure} hPa • Wind: ${wind.speed} m/s
+    </div>
+  `;
+}
+
+async function fetchWeather(city){
+  if(!API_KEY || API_KEY.includes('YOUR_')){
+    showError('Please provide a valid OpenWeatherMap API key in script.js.');
+    return;
+  }
+
+  setLoading(true);
+  try{
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&units=metric&appid=${API_KEY}`;
+    const res = await fetch(url);
+    if(!res.ok){
+      if(res.status === 404) throw new Error('City not found.');
+      throw new Error('Network response was not ok');
+    }
+    const data = await res.json();
+    renderWeather(data);
+  }catch(err){
+    showError(err.message || 'Failed to fetch weather.');
+  }
+}
+
+searchBtn.addEventListener('click', ()=>{
+  const city = cityInput.value.trim();
+  if(!city){ showError('Please enter a city name.'); return; }
+  fetchWeather(city);
+});
+
+cityInput.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') searchBtn.click();
+});
+
+// Optional: default city
+// fetchWeather('New Delhi');
+
