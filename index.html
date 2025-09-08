@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Simple Weather App</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="card" role="main">
+    <h1>Simple Weather App</h1>
+    <div class="search">
+      <input id="cityInput" type="text" placeholder="Enter city (e.g. Delhi)" aria-label="City" />
+      <button id="searchBtn">Search</button>
+    </div>
+
+    <div id="result" aria-live="polite">
+      <p class="meta">Type a city and click <strong>Search</strong>.</p>
+    </div>
+
+    <div id="error" class="error" role="alert" hidden></div>
+
+    <footer>Data from OpenWeatherMap • Units: Celsius</footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
